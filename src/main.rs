@@ -10,21 +10,29 @@ use std::io::{Read, Write};
             Ok(mut stream) => {
                 println!("Connexion au serveur réussie !");
 
-                let message = "{\"Subscribe\":{\"name\":\"Richbell\"}}";
-                let buf = message.as_bytes();
-                let n = buf.len() as u32;
-                let mut buf_n = n.to_be_bytes();
-                stream.write(&buf_n).unwrap();
-                stream.write(&buf).unwrap();
 
-                stream.read_exact(&mut buf_n).unwrap();
-                let n = u32::from_be_bytes(buf_n);
-                let mut buf = Vec::<u8>::new();
-                buf.resize(n as usize, 0);
-                let s = stream.read(&mut buf).expect("Cannot read");
-                let msg = String::from_utf8_lossy(&buf);
+                // "{\"Subscribe\":{\"name\":\"Richbell\"}}";
+                if let Ok(message) = serde_json::to_string( "Hello") {
+                    let buf = message.as_bytes();
+                    let n = buf.len() as u32;
+                    let mut buf_n = n.to_be_bytes(); //to_le_bytes
+                    stream.write(&buf_n).unwrap();// taille du message envoyer au server
+                    stream.write(&buf).unwrap();
 
-                println!("Receive message {}",msg);
+                    loop {
+
+                        stream.read_exact(&mut buf_n).unwrap(); // on attend la réponse du server
+                        let n = u32::from_be_bytes(buf_n);
+                        let mut buf = Vec::<u8>::new();
+                        buf.resize(n as usize, 0);
+                        let s = stream.read(&mut buf).expect("Cannot read");
+                        let msg = String::from_utf8_lossy(&buf);
+
+                        println!("Receive message {}",msg);
+                    }
+                }
+
+
             }
             Err(e) => {
                 println!("La connexion au serveur a échoué : {}", e);
