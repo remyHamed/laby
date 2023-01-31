@@ -1,8 +1,12 @@
 
 use std::io::{Read, Write};
-    use std::net::TcpListener;
-    use std::thread;
-    use std::net::TcpStream;
+use std::net::TcpListener;
+use std::thread;
+use std::net::TcpStream;
+use Welcom;
+
+
+
     fn main() {
         println!("Tentative de connexion au serveur...");
         let stream = TcpStream::connect("127.0.0.1:7878");
@@ -26,12 +30,12 @@ use std::io::{Read, Write};
                         let mut buf = Vec::<u8>::new();
                         buf.resize(n as usize, 0);
                         let s = stream.read(&mut buf).expect("Cannot read");
-                        let msg = String::from_utf8_lossy(&buf);
-
+                        let msg = String::from_utf8(buf).unwrap();
+                        let w: Welcom = serde_json::from_str(&message)?;
+                        println!("Receive message {}",w);
                         println!("Receive message {}",msg);
                     }
                 }
-
 
             }
             Err(e) => {
