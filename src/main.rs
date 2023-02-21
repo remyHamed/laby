@@ -57,39 +57,6 @@ fn main() {
                     println!("Receive message {:?}",w);
                     println!("Receive message {}",msg);
 
-                    // envoyer un message Subscribe
-                    let subscribe = Subscribe { name: "free_patato".to_string() };
-                    let subscribe_message = serde_json::to_string(&subscribe).unwrap();
-                    let buf = subscribe_message.as_bytes();
-                    let n = buf.len() as u32;
-                    let buf_n = n.to_be_bytes();
-                    stream.write(&buf_n).unwrap(); // taille du message envoyé au serveur
-                    stream.write(&buf).unwrap();
-                    println("")
-                    println!("Message Subscribe envoyé !");
-
-                    let n = u32::from_be_bytes(buf_n);
-                    let mut buf = vec![0u8; n as usize]; // créer un vecteur de taille n pour stocker les données
-                    stream.read_exact(&mut buf).expect("Cannot read"); // lire exactement n octets dans le flux
-                
-                    // désérialiser le message reçu en tant que Value
-                    let result: serde_json::Value = serde_json::from_slice(&buf).unwrap();
-                
-                    // vérifier si le message est une souscription réussie ou non
-                    if let Some(ok) = result.get("ok").and_then(|ok| ok.as_bool()) {
-                        if ok {
-                            println!("Received message: SubscribeResult - Ok");
-                        } else {
-                            if let Some(error) = result.get("error").and_then(|error| error.as_str()) {
-                                println!("Received message: SubscribeResult - Err({})", error);
-                            } else {
-                                println!("Received message: SubscribeResult - Err(unknown error)");
-                            }
-                        }
-                    } else {
-                        println!("Received message: unknown message");
-                    }
-                    
                 }
             }
         }
